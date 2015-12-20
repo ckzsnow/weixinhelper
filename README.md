@@ -1,0 +1,2 @@
+# weixinhelper
+init
