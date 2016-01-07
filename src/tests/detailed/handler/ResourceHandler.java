@@ -36,34 +36,10 @@ public class ResourceHandler extends CefResourceHandlerAdapter {
   public void getResponseHeaders(CefResponse response,
                                  IntRef response_length,
                                  StringRef redirectUrl) {
-    response_length.set(html.length());
-    response.setMimeType("text/html");
-    response.setStatus(200);
+    response_length.set(-1);
   }
 
-  @Override
-  public boolean readResponse(byte[] data_out,
-                              int bytes_to_read,
-                              IntRef bytes_read,
-                              CefCallback callback) {
-    int length = html.length();
-    if (startPos >= length)
-      return false;
-
-    // Extract up to bytes_to_read bytes from the html data
-    int endPos = startPos + bytes_to_read;
-    String dataToSend = (endPos > length) ? html.substring(startPos) :
-                                            html.substring(startPos, endPos);
-
-    // Copy extracted bytes into data_out and set the read length
-    // to bytes_read.
-    ByteBuffer result = ByteBuffer.wrap(data_out);
-    result.put(dataToSend.getBytes());
-    bytes_read.set(dataToSend.length());
-
-    startPos = endPos;
-    return true;
-  }
+  
 
   @Override
   public void cancel() {

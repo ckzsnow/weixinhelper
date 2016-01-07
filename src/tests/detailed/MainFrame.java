@@ -238,7 +238,8 @@ public class MainFrame extends JFrame {
       public void onLoadEnd(CefBrowser browser,
               int frameIdentifier,
               int httpStatusCode) {
-    	  weixin_group_select_pane_.updatePanel(browser);
+    	  //weixin_group_select_pane_.updatePanel(browser);
+    	  System.out.println("==============>" + browser.getIdentifier());
       }
     });
 
@@ -269,6 +270,7 @@ public class MainFrame extends JFrame {
     //    Last but not least we're setting up the UI for this example implementation.
     getContentPane().add(createWeixinControlPanel(), BorderLayout.NORTH);
     getContentPane().add(createContentPanel(), BorderLayout.CENTER);
+    
     MenuBar menuBar = new MenuBar(this,
                                   browser_,
                                   control_pane_,

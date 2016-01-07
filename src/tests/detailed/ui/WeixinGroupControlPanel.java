@@ -25,6 +25,7 @@ public class WeixinGroupControlPanel extends JPanel {
 
 	private final JButton selectAllButton_;
 	private final JButton sendMsgButton_;
+	private final JButton reloadButton_;
 	private final CefBrowser browser_;
 
 	public WeixinGroupControlPanel(CefBrowser browser) {
@@ -49,6 +50,17 @@ public class WeixinGroupControlPanel extends JPanel {
 		sendMsgButton_ = new JButton("发送消息");
 		sendMsgButton_.setAlignmentX(LEFT_ALIGNMENT);
 		sendMsgButton_.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+		add(sendMsgButton_);
+		add(Box.createHorizontalStrut(5));
+		
+		reloadButton_ = new JButton("重新加载好友列表");
+		reloadButton_.setAlignmentX(LEFT_ALIGNMENT);
+		reloadButton_.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 

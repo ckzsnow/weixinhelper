@@ -51,7 +51,13 @@ public class DomVisitor implements CefStringVisitor {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(dataMap.toString());
+		/*String height = "";
+		try {
+			height = doc.select("#J_NavChatScrollBody .top-placeholder").get(0).attr("style");
+		} catch(Exception ex) {
+			System.out.println(ex.toString());
+		}
+		System.out.println("HEIGHT===============================>" + height);*/
 		wixin_group_select_panel.addCheckBox(dataMap);
 	}
 	

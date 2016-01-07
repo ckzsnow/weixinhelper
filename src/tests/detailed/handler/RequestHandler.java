@@ -30,6 +30,7 @@ import tests.detailed.dialog.PasswordDialog;
 
 public class RequestHandler extends CefRequestHandlerAdapter {
   private final MainFrame owner_;
+  private boolean hasUpdate = false;
 
   public RequestHandler(MainFrame owner) {
     owner_ = owner;
@@ -44,16 +45,18 @@ public class RequestHandler extends CefRequestHandlerAdapter {
     /*if (request.getURL().endsWith("foo.bar/")) {
       return new ResourceHandler();
     }*/
-	System.out.println(request.toString());
-	Timer timer = new Timer();  
-    timer.schedule(new TimerTask() {  
-        public void run() {  
-        	owner_.weixin_group_select_pane_.updatePanel(browser);
-        }  
-    }, 2000);
+	if(!hasUpdate) {
+		hasUpdate = true;
+		System.out.println(request.toString());
+		Timer timer = new Timer();  
+	    timer.schedule(new TimerTask() {  
+	        public void run() {  
+	        	owner_.weixin_group_select_pane_.updatePanel(browser);
+	        }  
+	    }, 6000);
+	}
+	//return new ResourceHandler();
 	return null;
-	//return new ResourceHandler(owner_.weixin_group_select_pane_, browser);
-	//return null;
   }
 
   @Override

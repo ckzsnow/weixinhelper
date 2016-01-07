@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -26,29 +28,37 @@ public class WeixinGroupSelectPanel extends JPanel {
 	private List<String> selectedWeixinGroup = new ArrayList<String>();
 	private Map<String, JCheckBox> weixinUserMap = new HashMap<>();
 	private final CefBrowser browser_;
-	private final DomVisitor domVisitor;
+	private final DomVisitor domVisitor;	
+	private static int count = 0;
 	
-	private int topOffset = 100;
-
 	public WeixinGroupSelectPanel(CefBrowser browser) {
 		domVisitor = new DomVisitor(this);
 		browser_ = browser;
-		setLayout(new GridLayout(0,10));
+		setLayout(new GridLayout(0,6));
 	}
 
 	public void addCheckBox(Map<String, String> dataMap) {
-		boolean hasNewData = false;
+		boolean hasData = false;
 		for(Map.Entry<String, String> entry : dataMap.entrySet()) {
 			if(!weixinUserMap.containsKey(entry.getKey())) {
-				hasNewData = true;
 				JCheckBox box = new JCheckBox(entry.getValue());
 				add(box);
 				weixinUserMap.put(entry.getKey(), box);
+				hasData = true;
 			}
+			count++;
 		}
-		if(hasNewData) {
-			browser_.executeJavaScript("$('.scroll-element.scroll-y.scroll-scrolly_visible .scroll-bar')[0].style.top='"+topOffset+"px';", "", 9999);
-			topOffset += 100;
+		if(hasData) {
+			count += 3 * 64;
+			browser_.executeJavaScript("$('#J_NavChatScrollBody')[0].scrollTop = "+ String.valueOf((count)), "", 9999);
+			Timer timer = new Timer();  
+		    timer.schedule(new TimerTask() {  
+		        public void run() {  
+		        	updatePanel(browser_);
+		        }  
+		    }, 2000);
+		} else {
+			System.out.println("================>All End");
 		}
 	}
 
