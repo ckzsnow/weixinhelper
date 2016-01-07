@@ -276,7 +276,7 @@ public class MenuBar extends JMenuBar {
                form+= "<p>See implementation of <u>tests.RequestHandler.onBeforeResourceLoad(CefBrowser, CefRequest)</u> for details</p>";
                form+= "</form>";
                form+="</body></html>";
-        browser_.loadString(form, control_pane_.getAddress());
+        browser_.loadString(form, "http://www.google.com/");
       }
     });
     testMenu.add(showForm);

@@ -39,8 +39,8 @@ public class ControlPanel extends JPanel {
 
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-    add(Box.createHorizontalStrut(5));
-    add(Box.createHorizontalStrut(5));
+    //add(Box.createHorizontalStrut(5));
+    //add(Box.createHorizontalStrut(5));
 
     backButton_ = new JButton("Back");
     backButton_.setAlignmentX(LEFT_ALIGNMENT);

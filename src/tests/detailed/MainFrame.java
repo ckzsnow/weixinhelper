@@ -5,9 +5,12 @@
 package tests.detailed;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,10 +24,21 @@ import org.cef.OS;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefMessageRouter;
 import org.cef.browser.CefRequestContext;
+import org.cef.callback.CefAuthCallback;
+import org.cef.callback.CefRequestCallback;
 import org.cef.handler.CefDisplayHandlerAdapter;
 import org.cef.handler.CefLoadHandlerAdapter;
+import org.cef.handler.CefRenderHandlerAdapter;
 import org.cef.handler.CefRequestContextHandlerAdapter;
+import org.cef.handler.CefRequestHandler;
+import org.cef.handler.CefRequestHandlerAdapter;
+import org.cef.handler.CefResourceHandler;
+import org.cef.handler.CefLoadHandler.ErrorCode;
+import org.cef.handler.CefRequestHandler.TerminationStatus;
+import org.cef.misc.BoolRef;
+import org.cef.misc.StringRef;
 import org.cef.network.CefCookieManager;
+import org.cef.network.CefRequest;
 
 import tests.detailed.dialog.DownloadDialog;
 import tests.detailed.handler.AppHandler;
@@ -39,6 +53,9 @@ import tests.detailed.handler.RequestHandler;
 import tests.detailed.ui.ControlPanel;
 import tests.detailed.ui.MenuBar;
 import tests.detailed.ui.StatusPanel;
+import tests.detailed.ui.WeixinGroupControlPanel;
+import tests.detailed.ui.WeixinGroupSelectPanel;
+import tests.detailed.ui.WeixinTuwenMsgPanel;
 
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = -2295538706810864538L;
@@ -77,6 +94,10 @@ public class MainFrame extends JFrame {
     });
 
     frame.setSize(800, 600);
+    double width = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+    double height = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+    frame.setLocation( (int) (width - frame.getWidth()) / 2,
+                (int) (height - frame.getHeight()) / 2);
     frame.setVisible(true);
   }
 
@@ -84,11 +105,29 @@ public class MainFrame extends JFrame {
   private String errorMsg_ = "";
   private final CefBrowser browser_;
   private ControlPanel control_pane_;
+  public WeixinTuwenMsgPanel weixin_tuwen_msg_pane_;
+  public WeixinGroupControlPanel weixin_group_control_pane_;
+  public WeixinGroupSelectPanel weixin_group_select_pane_;
   private StatusPanel status_panel_;
   private final CefCookieManager cookieManager_;
 
   public MainFrame(boolean osrEnabled, String cookiePath, String [] args) {
-
+	  Thread repainter = new Thread(new Runnable() {
+		    @Override
+		    public void run() {
+		        while (true) { // I recommend setting a condition for your panel being open/visible
+		            repaint();
+		            revalidate();
+		            try {
+		                Thread.sleep(1000);
+		            } catch (InterruptedException ignored) {
+		            }
+		        }
+		    }
+		});
+		repainter.setName("Panel repaint");
+		repainter.setPriority(Thread.MAX_PRIORITY);
+		repainter.start();
     // 1) CefApp is the entry point for JCEF. You can pass
     //    application arguments to it, if you want to handle any
     //    chromium or CEF related switches/attributes in
@@ -145,7 +184,7 @@ public class MainFrame extends JFrame {
     client_.addDisplayHandler(new CefDisplayHandlerAdapter() {
       @Override
       public void onAddressChange(CefBrowser browser, String url) {
-        control_pane_.setAddress(browser, url);
+        //control_pane_.setAddress(browser, url);
       }
       @Override
       public void onTitleChange(CefBrowser browser, String title) {
@@ -169,13 +208,13 @@ public class MainFrame extends JFrame {
                                        boolean isLoading,
                                        boolean canGoBack,
                                        boolean canGoForward) {
-        control_pane_.update(browser, isLoading, canGoBack, canGoForward);
+        //control_pane_.update(browser, isLoading, canGoBack, canGoForward);
         status_panel_.setIsInProgress(isLoading);
 
-        if (!isLoading && !errorMsg_.isEmpty()) {
+        /*if (!isLoading && !errorMsg_.isEmpty()) {
           browser.loadString(errorMsg_, control_pane_.getAddress());
           errorMsg_ = "";
-        }
+        }*/
       }
 
       @Override
@@ -194,6 +233,12 @@ public class MainFrame extends JFrame {
           errorMsg_ += "</body></html>";
           browser.stopLoad();
         }
+      }
+      
+      public void onLoadEnd(CefBrowser browser,
+              int frameIdentifier,
+              int httpStatusCode) {
+    	  weixin_group_select_pane_.updatePanel(browser);
       }
     });
 
@@ -216,12 +261,13 @@ public class MainFrame extends JFrame {
     } else {
       cookieManager_ = CefCookieManager.getGlobalManager();
     }
-    browser_ = client_.createBrowser("http://www.google.com",
+    browser_ = client_.createBrowser("https://wx.qq.com/?&lang=zh_CN",
                                      osrEnabled,
                                      false,
                                      requestContext);
 
     //    Last but not least we're setting up the UI for this example implementation.
+    getContentPane().add(createWeixinControlPanel(), BorderLayout.NORTH);
     getContentPane().add(createContentPanel(), BorderLayout.CENTER);
     MenuBar menuBar = new MenuBar(this,
                                   browser_,
@@ -246,11 +292,22 @@ public class MainFrame extends JFrame {
     setJMenuBar(menuBar);
   }
 
+  private JPanel createWeixinControlPanel() {
+	  JPanel contentPanel = new JPanel(new BorderLayout());
+	  weixin_tuwen_msg_pane_ = new WeixinTuwenMsgPanel(browser_);
+	  weixin_group_control_pane_ = new WeixinGroupControlPanel(browser_);
+	  weixin_group_select_pane_ = new WeixinGroupSelectPanel(browser_);
+	  contentPanel.add(weixin_tuwen_msg_pane_, BorderLayout.NORTH);
+	  contentPanel.add(weixin_group_control_pane_, BorderLayout.CENTER);
+	  contentPanel.add(weixin_group_select_pane_, BorderLayout.SOUTH);
+	  return contentPanel;
+  }
+  
   private JPanel createContentPanel() {
     JPanel contentPanel = new JPanel(new BorderLayout());
-    control_pane_ = new ControlPanel(browser_);
+    //control_pane_ = new ControlPanel(browser_);
     status_panel_ = new StatusPanel();
-    contentPanel.add(control_pane_, BorderLayout.NORTH);
+    //contentPanel.add(control_pane_, BorderLayout.NORTH);
 
     // 4) By calling getUIComponen() on the CefBrowser instance, we receive
     //    an displayable UI component which we can add to our application.
