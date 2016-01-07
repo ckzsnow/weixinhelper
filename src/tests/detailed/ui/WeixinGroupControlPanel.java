@@ -23,9 +23,10 @@ import org.cef.browser.CefBrowser;
 @SuppressWarnings("serial")
 public class WeixinGroupControlPanel extends JPanel {
 
-	private final JButton selectAllButton_;
-	private final JButton sendMsgButton_;
-	private final JButton reloadButton_;
+	public final JButton selectAllButton_;
+	public final JButton sendMsgButton_;
+	public final JButton reloadButton_;
+	public final JTextField textFiled_;
 	private final CefBrowser browser_;
 
 	public WeixinGroupControlPanel(CefBrowser browser) {
@@ -63,10 +64,21 @@ public class WeixinGroupControlPanel extends JPanel {
 		reloadButton_.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				browser_.loadURL("https://wx.qq.com/?&lang=zh_CN");
 			}
 		});
-		add(sendMsgButton_);
+		/*add(reloadButton_);
+		add(Box.createHorizontalStrut(5));*/
+		
+		textFiled_ = new JTextField("正在加载微信列表信息......");
+		textFiled_.setAlignmentX(LEFT_ALIGNMENT);
+		textFiled_.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				textFiled_.setText("正在加载微信列表信息......");
+			}
+		});
+		add(textFiled_);
 		add(Box.createHorizontalStrut(5));
 	}
 
@@ -75,4 +87,5 @@ public class WeixinGroupControlPanel extends JPanel {
 			// backButton_.setEnabled(canGoBack);
 		}
 	}
+	
 }

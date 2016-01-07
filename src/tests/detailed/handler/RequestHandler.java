@@ -45,15 +45,18 @@ public class RequestHandler extends CefRequestHandlerAdapter {
     /*if (request.getURL().endsWith("foo.bar/")) {
       return new ResourceHandler();
     }*/
-	if(!hasUpdate) {
-		hasUpdate = true;
-		System.out.println(request.toString());
-		Timer timer = new Timer();  
-	    timer.schedule(new TimerTask() {  
-	        public void run() {  
-	        	owner_.weixin_group_select_pane_.updatePanel(browser);
-	        }  
-	    }, 6000);
+	System.out.println(request.toString());
+	if(request.getURL().indexOf("https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxbatchgetcontact") != -1) {
+		//if(!hasUpdate) {
+			hasUpdate = true;
+			System.out.println(request.toString());
+			Timer timer = new Timer();  
+		    timer.schedule(new TimerTask() {  
+		        public void run() {  
+		        	owner_.weixin_group_select_pane_.updatePanel(browser);
+		        }  
+		    }, 6000);
+		//}
 	}
 	//return new ResourceHandler();
 	return null;

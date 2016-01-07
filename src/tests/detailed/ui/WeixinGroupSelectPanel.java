@@ -30,7 +30,7 @@ public class WeixinGroupSelectPanel extends JPanel {
 	private final CefBrowser browser_;
 	private final DomVisitor domVisitor;	
 	private static int count = 0;
-	
+	private WeixinGroupControlPanel wgcp;
 	public WeixinGroupSelectPanel(CefBrowser browser) {
 		domVisitor = new DomVisitor(this);
 		browser_ = browser;
@@ -59,6 +59,7 @@ public class WeixinGroupSelectPanel extends JPanel {
 		    }, 2000);
 		} else {
 			System.out.println("================>All End");
+			wgcp.textFiled_.setText("已完成加载");
 		}
 	}
 
@@ -66,5 +67,9 @@ public class WeixinGroupSelectPanel extends JPanel {
 		if (browser == browser_) {
 			browser.getSource(domVisitor);
 		}
+	}
+
+	public void setGroupControlPane(WeixinGroupControlPanel wgcp) {
+		this.wgcp = wgcp;
 	}
 }
