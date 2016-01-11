@@ -58,6 +58,15 @@ import tests.detailed.ui.WeixinGroupSelectPanel;
 import tests.detailed.ui.WeixinTuwenMsgPanel;
 
 public class MainFrame extends JFrame {
+
+	static {
+	    try {
+	        System.loadLibrary("libcef"); // used for tests. This library in classpath only
+	    } catch (UnsatisfiedLinkError e) {
+	       System.out.println(e.toString());
+	    }
+	}
+	
   private static final long serialVersionUID = -2295538706810864538L;
   public static void main(String [] args) {
     // OSR mode is enabled by default on Linux.
