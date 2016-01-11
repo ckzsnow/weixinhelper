@@ -1,1 +1,0 @@
-点击人：$($($('.scroll-wrapper.chat_list.scrollbar-dynamic div[ng-repeat]')[1]).children()[0]).click();

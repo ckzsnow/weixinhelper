@@ -67,7 +67,7 @@ public class WeixinGroupControlPanel extends JPanel {
 							if(entry.getValue().isSelected()) {
 								hasSelected = true;
 								try {
-									fileWriter.write(String.valueOf(i) + "\r\n");
+									fileWriter.write(entry.getValue().getLabel() + "\r\n");
 								} catch (IOException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
