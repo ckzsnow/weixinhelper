@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import org.cef.browser.CefBrowser;
 
 import tests.detailed.DomVisitor;
+import tests.detailed.WeixinTuwenDomVisitor;
 
 @SuppressWarnings("serial")
 public class WeixinGroupSelectPanel extends JPanel {
@@ -28,11 +29,14 @@ public class WeixinGroupSelectPanel extends JPanel {
 	private List<String> selectedWeixinGroup = new ArrayList<String>();
 	private Map<String, JCheckBox> weixinUserMap = new HashMap<>();
 	private final CefBrowser browser_;
-	private final DomVisitor domVisitor;	
+	private final DomVisitor domVisitor;
+	private final WeixinTuwenDomVisitor weixinTuwenDomVisitor;
 	private static int count = 0;
 	private WeixinGroupControlPanel wgcp;
+	private WeixinTuwenMsgPanel wtmp;
 	public WeixinGroupSelectPanel(CefBrowser browser) {
 		domVisitor = new DomVisitor(this);
+		weixinTuwenDomVisitor = new WeixinTuwenDomVisitor(wtmp);
 		browser_ = browser;
 		setLayout(new GridLayout(0,6));
 	}
@@ -60,6 +64,13 @@ public class WeixinGroupSelectPanel extends JPanel {
 		} else {
 			System.out.println("================>All End");
 			wgcp.textFiled_.setText("已完成加载");
+			browser_.executeJavaScript("$('#J_NavChatScrollBody')[0].scrollTop = "+ String.valueOf((count)), "", 9999);
+			Timer timer = new Timer();  
+		    timer.schedule(new TimerTask() {  
+		        public void run() {
+		        	updateWeixinTuwenMsg();
+		        }  
+		    }, 5000);
 		}
 	}
 
@@ -67,6 +78,18 @@ public class WeixinGroupSelectPanel extends JPanel {
 		if (browser == browser_) {
 			browser.getSource(domVisitor);
 		}
+	}
+
+	public void updateWeixinTuwenMsg() {
+		browser_.getSource(weixinTuwenDomVisitor);
+	}
+	
+	public WeixinTuwenMsgPanel getWtmp() {
+		return wtmp;
+	}
+
+	public void setWtmp(WeixinTuwenMsgPanel wtmp) {
+		this.wtmp = wtmp;
 	}
 
 	public void setGroupControlPane(WeixinGroupControlPanel wgcp) {
