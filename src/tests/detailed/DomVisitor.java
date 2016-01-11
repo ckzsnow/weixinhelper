@@ -1,7 +1,9 @@
 package tests.detailed;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +32,7 @@ public class DomVisitor implements CefStringVisitor {
 	public void visit(String string) {
 		Document doc = Jsoup.parse(string);
 		Elements ngRepeatElements = doc.select(".scroll-wrapper.chat_list.scrollbar-dynamic div[ng-repeat]");
-		Map<String, String> dataMap = new HashMap<>();
+		List<Map<String, String>> dataList = new ArrayList<>();
 		for(Element ele : ngRepeatElements) {
 			String nickName = ele.select(".nickname_text.ng-binding").html();
 			Matcher ma = Pattern.compile("<\\s*img\\s+([^>]+)\\s*>").matcher(nickName);
@@ -39,7 +41,9 @@ public class DomVisitor implements CefStringVisitor {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				Map<String, String> map = mapper.readValue(dataJson, Map.class);
-				dataMap.put(map.get("username"), ma.replaceAll("").trim());
+				map.put("userName", map.get("username"));
+				map.put("userNickName", ma.replaceAll("").trim());
+				dataList.add(map);
 			} catch (JsonParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,7 +62,7 @@ public class DomVisitor implements CefStringVisitor {
 			System.out.println(ex.toString());
 		}
 		System.out.println("HEIGHT===============================>" + height);*/
-		wixin_group_select_panel.addCheckBox(dataMap);
+		wixin_group_select_panel.addCheckBox(dataList);
 	}
 	
 	public static void main(String[] args) {

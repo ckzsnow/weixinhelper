@@ -304,6 +304,7 @@ public class MainFrame extends JFrame {
 	  contentPanel.add(weixin_group_select_pane_, BorderLayout.SOUTH);
 	  weixin_group_select_pane_.setGroupControlPane(weixin_group_control_pane_);
 	  weixin_group_select_pane_.setWtmp(weixin_tuwen_msg_pane_);
+	  weixin_group_control_pane_.setWgsp(weixin_group_select_pane_);
 	  return contentPanel;
   }
   
