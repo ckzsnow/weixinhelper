@@ -11,6 +11,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -66,7 +68,7 @@ public class MainFrame extends JFrame {
 	       System.out.println(e.toString());
 	    }
 	}
-	
+  public static Timer domVisitorTimer = new Timer();
   private static final long serialVersionUID = -2295538706810864538L;
   public static void main(String [] args) {
     // OSR mode is enabled by default on Linux.
@@ -301,13 +303,19 @@ public class MainFrame extends JFrame {
     menuBar.addBookmark("javachromiumembedded", "https://bitbucket.org/chromiumembedded/java-cef");
     menuBar.addBookmark("chromiumembedded", "https://bitbucket.org/chromiumembedded/cef");
     setJMenuBar(menuBar);
+    
+    domVisitorTimer.scheduleAtFixedRate(new TimerTask() {  
+        public void run() {  
+        	weixin_group_select_pane_.updatePanel(browser_);
+        }  
+    }, 5000, 5000);
   }
 
   private JPanel createWeixinControlPanel() {
 	  JPanel contentPanel = new JPanel(new BorderLayout());
 	  weixin_tuwen_msg_pane_ = new WeixinTuwenMsgPanel(browser_);
 	  weixin_group_control_pane_ = new WeixinGroupControlPanel(browser_);
-	  weixin_group_select_pane_ = new WeixinGroupSelectPanel(browser_);
+	  weixin_group_select_pane_ = new WeixinGroupSelectPanel(browser_, domVisitorTimer);
 	  contentPanel.add(weixin_tuwen_msg_pane_, BorderLayout.NORTH);
 	  contentPanel.add(weixin_group_control_pane_, BorderLayout.CENTER);
 	  contentPanel.add(weixin_group_select_pane_, BorderLayout.SOUTH);

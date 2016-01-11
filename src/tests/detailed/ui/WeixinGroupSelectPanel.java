@@ -40,8 +40,10 @@ public class WeixinGroupSelectPanel extends JPanel {
 	private static int count = 0;
 	private WeixinGroupControlPanel wgcp;
 	private WeixinTuwenMsgPanel wtmp;
-	public WeixinGroupSelectPanel(CefBrowser browser) {
-		domVisitor = new DomVisitor(this);
+	private Timer timer;
+	public WeixinGroupSelectPanel(CefBrowser browser, Timer timer) {
+		this.timer = timer;
+		domVisitor = new DomVisitor(this, timer);
 		weixinTuwenDomVisitor = new WeixinTuwenDomVisitor(wtmp);
 		browser_ = browser;
 		setLayout(new GridLayout(0, 6));
@@ -75,7 +77,7 @@ public class WeixinGroupSelectPanel extends JPanel {
 				public void run() {
 					updatePanel(browser_);
 				}
-			}, 2000);
+			}, 3000);
 		} else {
 			System.out.println("================>All End");
 			wgcp.textFiled_.setText("已完成加载");

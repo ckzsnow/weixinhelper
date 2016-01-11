@@ -6,7 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,19 +90,36 @@ public class WeixinGroupControlPanel extends JPanel {
 				} else {
 					textFiled_.setBackground(Color.cyan);
 					textFiled_.setText("当前窗口5秒后自动关闭，请根据文档说明的步骤，完成最终图文链接的群发！");
-					Timer timer = new Timer();
-					timer.schedule(new TimerTask() {
-						public void run() {
-							Runtime rt = Runtime.getRuntime();
-							try {
-								rt.exec("C:\\Program Files (x86)\\Tencent\\WeChat\\WeChat.exe");
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							browser_.close();
+					try {
+						BufferedReader bf= new BufferedReader(new FileReader("weixinexepathconfig.txt"));
+						String line = bf.readLine();
+						if(line == null || line.isEmpty()) {
+							textFiled_.setBackground(Color.RED);
+							textFiled_.setText("没有在配置文件中找到WeChat.exe的路径，请手动启动，当前程序5秒后自动关闭！");
 						}
-					}, 2000);
+						Timer timer = new Timer();
+						timer.schedule(new TimerTask() {
+							public void run() {
+								Runtime rt = Runtime.getRuntime();
+								try {
+									if(line != null) {
+										rt.exec(line);
+									}
+									rt.exec("weixin.exe");
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								browser_.close();
+							}
+						}, 5000);
+					} catch (FileNotFoundException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
 				}
 			}
 		});

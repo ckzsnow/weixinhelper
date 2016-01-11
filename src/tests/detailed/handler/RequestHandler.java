@@ -45,7 +45,7 @@ public class RequestHandler extends CefRequestHandlerAdapter {
     /*if (request.getURL().endsWith("foo.bar/")) {
       return new ResourceHandler();
     }*/
-	System.out.println(request.toString());
+	/*System.out.println(request.toString());
 	if(request.getURL().indexOf("https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxbatchgetcontact") != -1) {
 		//if(!hasUpdate) {
 			hasUpdate = true;
@@ -57,7 +57,7 @@ public class RequestHandler extends CefRequestHandlerAdapter {
 		        }  
 		    }, 6000);
 		//}
-	}
+	}*/
 	//return new ResourceHandler();
 	return null;
   }

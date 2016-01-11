@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,8 +24,10 @@ import tests.detailed.ui.WeixinGroupSelectPanel;
 public class DomVisitor implements CefStringVisitor {
 
 	private WeixinGroupSelectPanel wixin_group_select_panel;
+	private Timer timer;
 	
-	public DomVisitor(WeixinGroupSelectPanel panel) {
+	public DomVisitor(WeixinGroupSelectPanel panel, Timer timer) {
+		this.timer = timer;
 		this.wixin_group_select_panel = panel;
 	}
 	
@@ -62,7 +65,8 @@ public class DomVisitor implements CefStringVisitor {
 			System.out.println(ex.toString());
 		}
 		System.out.println("HEIGHT===============================>" + height);*/
-		wixin_group_select_panel.addCheckBox(dataList);
+		if(dataList.size() != 0) timer.cancel();
+		if(dataList.size() != 0) wixin_group_select_panel.addCheckBox(dataList);
 	}
 	
 	public static void main(String[] args) {
