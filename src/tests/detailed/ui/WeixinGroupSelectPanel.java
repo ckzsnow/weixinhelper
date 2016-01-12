@@ -65,6 +65,7 @@ public class WeixinGroupSelectPanel extends JPanel {
 				Map<String, JCheckBox> boxMap = new HashMap<>();
 				boxMap.put(map.get("userName"), box);
 				weixinUserList.add(boxMap);
+				wtmp.tuwenMsgBox.addItem(map.get("userNickName")+"#BBZ#"+map.get("userName"));
 				hasData = true;
 			}
 			count++;

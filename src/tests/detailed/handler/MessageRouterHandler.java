@@ -15,12 +15,18 @@ public class MessageRouterHandler extends CefMessageRouterHandlerAdapter {
                          String request,
                          boolean persistent,
                          CefQueryCallback callback) {
-    if (request.indexOf("BindingTest:") == 0) {
+    /*if (request.indexOf("BindingTest:") == 0) {
       // Reverse the message and return it to the JavaScript caller.
       String msg = request.substring(12);
       callback.success(new StringBuilder(msg).reverse().toString());
       return true;
-    }
+    }*/
+    if (request.indexOf("BBZ_WEIXIN_FINISH:") == 0) {
+        // Reverse the message and return it to the JavaScript caller.
+        String msg = request.substring(12);
+        callback.success(new StringBuilder(msg).reverse().toString());
+        return true;
+      }
     // Not handled.
     return false;
   }

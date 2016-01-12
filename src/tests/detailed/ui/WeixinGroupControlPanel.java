@@ -24,6 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -41,13 +42,15 @@ public class WeixinGroupControlPanel extends JPanel {
 	private WeixinGroupSelectPanel wgsp;
 	private File weixinContactListFile;
 	private FileWriter fileWriter;
+	public List<String> weixinqunList = new ArrayList<>();
+	public String selectedUserNickName = "";
 
 	public WeixinGroupControlPanel(CefBrowser browser) {
 		weixinContactListFile = new File("weixinContactList.txt");
-		if(weixinContactListFile.exists()) {
+		if (weixinContactListFile.exists()) {
 			weixinContactListFile.delete();
 		}
-		
+
 		browser_ = browser;
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -64,10 +67,10 @@ public class WeixinGroupControlPanel extends JPanel {
 				boolean hasSelected = false;
 				try {
 					fileWriter = new FileWriter("weixinContactList.txt", true);
-					for(int i=0; i<userList.size(); i++) {
+					for (int i = 0; i < userList.size(); i++) {
 						Map<String, JCheckBox> map = userList.get(i);
-						for(Map.Entry<String, JCheckBox> entry : map.entrySet()) {
-							if(entry.getValue().isSelected()) {
+						for (Map.Entry<String, JCheckBox> entry : map.entrySet()) {
+							if (entry.getValue().isSelected()) {
 								hasSelected = true;
 								try {
 									fileWriter.write(entry.getValue().getLabel() + "\r\n");
@@ -84,16 +87,16 @@ public class WeixinGroupControlPanel extends JPanel {
 					// TODO Auto-generated catch block
 					e3.printStackTrace();
 				}
-				if(!hasSelected) {
+				if (!hasSelected) {
 					textFiled_.setBackground(Color.RED);
 					textFiled_.setText("请选择好友或微信群！");
 				} else {
 					textFiled_.setBackground(Color.cyan);
 					textFiled_.setText("当前窗口5秒后自动关闭，请根据文档说明的步骤，完成最终图文链接的群发！");
 					try {
-						BufferedReader bf= new BufferedReader(new FileReader("weixinexepathconfig.txt"));
+						BufferedReader bf = new BufferedReader(new FileReader("weixinexepathconfig.txt"));
 						String line = bf.readLine();
-						if(line == null || line.isEmpty()) {
+						if (line == null || line.isEmpty()) {
 							textFiled_.setBackground(Color.RED);
 							textFiled_.setText("没有在配置文件中找到WeChat.exe的路径，请手动启动，当前程序5秒后自动关闭！");
 						}
@@ -102,7 +105,7 @@ public class WeixinGroupControlPanel extends JPanel {
 							public void run() {
 								Runtime rt = Runtime.getRuntime();
 								try {
-									if(line != null) {
+									if (line != null) {
 										rt.exec(line);
 									}
 									rt.exec("weixin.exe");
@@ -126,17 +129,38 @@ public class WeixinGroupControlPanel extends JPanel {
 		add(selectAllButton_);
 		add(Box.createHorizontalStrut(5));
 
-		sendMsgButton_ = new JButton("发送消息");
+		sendMsgButton_ = new JButton("加群");
 		sendMsgButton_.setAlignmentX(LEFT_ALIGNMENT);
 		sendMsgButton_.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				selectedUserNickName = (String) wgsp.getWtmp().tuwenMsgBox.getSelectedItem();
+				if(selectedUserNickName == null || selectedUserNickName.isEmpty()) {
+					JOptionPane.showMessageDialog(null,"您还没有选择待加群的用户！");
+				} else {
+					selectedUserNickName = selectedUserNickName.substring(selectedUserNickName.indexOf("#BBZ#") + 5);
+					List<Map<String, JCheckBox>> userList = wgsp.getWeixinUserList();
+					boolean hasSelected = false;
+					for (int i = 0; i < userList.size(); i++) {
+						Map<String, JCheckBox> map = userList.get(i);
+						for (Map.Entry<String, JCheckBox> entry : map.entrySet()) {
+							if (entry.getValue().isSelected()) {
+								hasSelected = true;
+								weixinqunList.add(entry.getKey());
+							}
+						}
+					}
+					if(!hasSelected) {
+						JOptionPane.showMessageDialog(null,"您还没有选择群，请在当前微信群列表中选择群！");
+					} else {
+						executeWeixinGroupAddUser();
+					}
+				}
 			}
 		});
 		add(sendMsgButton_);
 		add(Box.createHorizontalStrut(5));
-		
+
 		reloadButton_ = new JButton("重新加载好友列表");
 		reloadButton_.setAlignmentX(LEFT_ALIGNMENT);
 		reloadButton_.addActionListener(new ActionListener() {
@@ -145,9 +169,10 @@ public class WeixinGroupControlPanel extends JPanel {
 				browser_.loadURL("https://wx.qq.com/?&lang=zh_CN");
 			}
 		});
-		/*add(reloadButton_);
-		add(Box.createHorizontalStrut(5));*/
-		
+		/*
+		 * add(reloadButton_); add(Box.createHorizontalStrut(5));
+		 */
+
 		textFiled_ = new JTextField("正在加载微信列表信息......");
 		textFiled_.setAlignmentX(LEFT_ALIGNMENT);
 		textFiled_.setBackground(Color.YELLOW);
@@ -168,11 +193,19 @@ public class WeixinGroupControlPanel extends JPanel {
 	public void setWgsp(WeixinGroupSelectPanel wgsp) {
 		this.wgsp = wgsp;
 	}
-	
+
 	public void update(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
 		if (browser == browser_) {
 			// backButton_.setEnabled(canGoBack);
 		}
 	}
 	
+	public void executeWeixinGroupAddUser() {
+		for(String userName : weixinqunList) {
+			browser_.executeJavaScript("var weixinGroupName='"+userName+"';var userName='"+selectedUserNickName+"';function searchWeixinUserAndClick(){var hasFind=false;$('#J_ContactPickerScrollBody div[ng-repeat]').each(function(){var src=$($(this).find('img')[0]).attr('src');if(!hasFind&&src!=null&&src!=''){var beginPos=src.indexOf('&username=');var endPos=src.indexOf('&skey=');var currentUserName=src.substring(beginPos+10,endPos);if(currentUserName==userName){hasFind=true;$($(this).find('.contact_item')[0]).click();$($('.dialog_ft.ng-scope a')[0]).click()}}});if(!hasFind){$('#J_ContactPickerScrollBody')[0].scrollTop=$('#J_ContactPickerScrollBody')[0].scrollTop+5*54;setTimeout(function(){if($('#J_ContactPickerScrollBody')[0].scrollTop<=$('#J_ContactPickerScrollBody')[0].scrollHeight+5*54){searchWeixinUserAndClick()}else{$('.ngdialog-close').click();window.cefQuery({request:'BBZ_WEIXIN_FINISH:1',onSuccess:function(response){},onFailure:function(error_code,error_message){}})}},1000)}}function searchWeixinGroupAndClick(){var hasFind=false;$('.scroll-wrapper.chat_list.scrollbar-dynamic div[ng-repeat]').each(function(){if(!hasFind&&$($(this).children()[0]).attr('data-cm').indexOf(weixinGroupName)!=-1){hasFind=true;$($(this).children()[0]).click();$($('.title.poi a')[0]).click();$('#mmpop_chatroom_members i').click();setTimeout(function(){searchWeixinUserAndClick()},2000)}});if(!hasFind){setTimeout(function(){$('#J_NavChatScrollBody')[0].scrollTop=$('#J_NavChatScrollBody')[0].scrollTop+8*64;if($('#J_NavChatScrollBody')[0].scrollTop<=$('#J_NavChatScrollBody')[0].scrollHeight+8*64){searchWeixinGroupAndClick()}else{window.cefQuery({request:'BBZ_WEIXIN_FINISH:1',onSuccess:function(response){},onFailure:function(error_code,error_message){}})}},1000)}}$('#J_NavChatScrollBody')[0].scrollTop=0;setTimeout(function(){searchWeixinGroupAndClick()},1000);", "", 9999);
+		}
+		weixinqunList.clear();
+		selectedUserNickName = "";
+	}
+
 }

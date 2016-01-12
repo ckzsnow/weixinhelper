@@ -1,5 +1,6 @@
 package tests.detailed.ui;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Box;
@@ -21,11 +22,12 @@ public class WeixinTuwenMsgPanel extends JPanel {
   public WeixinTuwenMsgPanel(CefBrowser browser) {
     browser_ = browser;
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS));    
-    JLabel label=new JLabel("当前图文消息列表：");
+    JLabel label=new JLabel("选择待加群用户：");
     add(label);
-    add(Box.createHorizontalStrut(5));
+    add(Box.createHorizontalStrut(17));
     tuwenMsgBox = new JComboBox<Object>(new String[]{});
-    tuwenMsgBox.setEditable(true);
+    tuwenMsgBox.setEditable(false);
+    tuwenMsgBox.setPreferredSize(new Dimension(200, 30));
     add(tuwenMsgBox);
   }
   
