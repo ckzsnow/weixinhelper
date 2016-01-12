@@ -35,14 +35,14 @@ public class WeixinGroupSelectPanel extends JPanel {
 	private List<String> selectedWeixinGroup = new ArrayList<String>();
 	private List<Map<String, JCheckBox>> weixinUserList = new ArrayList<>();
 	private final CefBrowser browser_;
-	private final DomVisitor domVisitor;
+	public final DomVisitor domVisitor;
 	private final WeixinTuwenDomVisitor weixinTuwenDomVisitor;
-	private static int count = 0;
+	public static int count = 0;
 	private WeixinGroupControlPanel wgcp;
 	private WeixinTuwenMsgPanel wtmp;
-	private Timer timer;
+	private Timer domvisitortimer;
 	public WeixinGroupSelectPanel(CefBrowser browser, Timer timer) {
-		this.timer = timer;
+		this.domvisitortimer = timer;
 		domVisitor = new DomVisitor(this, timer);
 		weixinTuwenDomVisitor = new WeixinTuwenDomVisitor(wtmp);
 		browser_ = browser;
@@ -71,7 +71,7 @@ public class WeixinGroupSelectPanel extends JPanel {
 			count++;
 		}
 		if (hasData) {
-			count += 3 * 64;
+			count += 5 * 64;
 			browser_.executeJavaScript("$('#J_NavChatScrollBody')[0].scrollTop = " + String.valueOf((count)), "", 9999);
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
@@ -81,15 +81,16 @@ public class WeixinGroupSelectPanel extends JPanel {
 			}, 3000);
 		} else {
 			System.out.println("================>All End");
-			wgcp.textFiled_.setText("已完成加载");
+			/*wgcp.textFiled_.setText("已完成加载");
 			browser_.executeJavaScript("$('#J_NavChatScrollBody')[0].scrollTop = "+ String.valueOf((count)), "", 9999);
 			Timer timer = new Timer();  
 		    timer.schedule(new TimerTask() {  
 		        public void run() {
 		        	updateWeixinTuwenMsg();
 		        }  
-		    }, 5000);
+		    }, 5000);*/
 			browser_.executeJavaScript("$('#J_NavChatScrollBody')[0].scrollTop = " + String.valueOf((0)), "", 9999);
+			domvisitortimer.cancel();
 			wgcp.textFiled_.setBackground(Color.GREEN);
 			wgcp.textFiled_.setText("已完成加载！");
 		}
@@ -125,6 +126,14 @@ public class WeixinGroupSelectPanel extends JPanel {
 		this.wgcp = wgcp;
 	}
 	
+	public Timer getDomvisitortimer() {
+		return domvisitortimer;
+	}
+
+	public void setDomvisitortimer(Timer domvisitortimer) {
+		this.domvisitortimer = domvisitortimer;
+	}
+
 	public static void main(String[] args) {
 		
 	}

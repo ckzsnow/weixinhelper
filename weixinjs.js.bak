@@ -30,11 +30,7 @@ function searchWeixinUserAndClick() {
 			}
 		}, 1000);
 	} else {
-		window.cefQuery({
-			request: 'BBZ_WEIXIN_FINISH:1',
-			onSuccess: function(response) {},
-			onFailure: function(error_code, error_message) {}
-		});
+
 	}
 }
 function searchWeixinGroupAndClick() {

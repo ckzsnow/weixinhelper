@@ -15,7 +15,7 @@ import org.cef.browser.CefBrowser;
 @SuppressWarnings("serial")
 public class WeixinTuwenMsgPanel extends JPanel {
 
-  public final JComboBox<Object> tuwenMsgBox;
+  public JComboBox<Object> tuwenMsgBox;
   
   private final CefBrowser browser_;
 

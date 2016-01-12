@@ -24,6 +24,6 @@ public class JSDialogHandler extends CefJSDialogHandlerAdapter {
       System.out.println("The " + dialog_type + " from origin \"" + origin_url + "\" was suppressed.");
       System.out.println("   The content of the suppressed dialog was: \"" + message_text + "\"");
     }
-    return false;
+    return true;
   }
 }

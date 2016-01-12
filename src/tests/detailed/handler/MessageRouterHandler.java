@@ -9,6 +9,9 @@ import org.cef.callback.CefQueryCallback;
 import org.cef.handler.CefMessageRouterHandlerAdapter;
 
 public class MessageRouterHandler extends CefMessageRouterHandlerAdapter {
+	
+  public static boolean jsHasFinished = false;
+	
   @Override
   public boolean onQuery(CefBrowser browser,
                          long query_id,
@@ -25,6 +28,7 @@ public class MessageRouterHandler extends CefMessageRouterHandlerAdapter {
         // Reverse the message and return it to the JavaScript caller.
         String msg = request.substring(12);
         callback.success(new StringBuilder(msg).reverse().toString());
+        jsHasFinished = true;
         return true;
       }
     // Not handled.

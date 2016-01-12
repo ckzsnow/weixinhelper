@@ -26,6 +26,14 @@ public class DomVisitor implements CefStringVisitor {
 	private WeixinGroupSelectPanel wixin_group_select_panel;
 	private Timer timer;
 	
+	public Timer getTimer() {
+		return timer;
+	}
+
+	public void setTimer(Timer timer) {
+		this.timer = timer;
+	}
+
 	public DomVisitor(WeixinGroupSelectPanel panel, Timer timer) {
 		this.timer = timer;
 		this.wixin_group_select_panel = panel;
