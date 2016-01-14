@@ -7,12 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,8 @@ import tests.detailed.handler.MessageRouterHandler;
 public class WeixinGroupControlPanel extends JPanel {
 
 	public final JButton selectAllButton_;
+	public final JButton selectAllWeixinGroupButton_;
+	public final JButton unSelectAllWeixinGroupButton_;
 	public final JButton sendMsgButton_;
 	public final JButton reloadButton_;
 	public final JTextField textFiled_;
@@ -50,11 +55,6 @@ public class WeixinGroupControlPanel extends JPanel {
 	public String selectedUserNickName = "";
 
 	public WeixinGroupControlPanel(CefBrowser browser) {
-		weixinContactListFile = new File("weixinContactList.txt");
-		if (weixinContactListFile.exists()) {
-			weixinContactListFile.delete();
-		}
-
 		browser_ = browser;
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -62,22 +62,68 @@ public class WeixinGroupControlPanel extends JPanel {
 		add(label);
 		add(Box.createHorizontalStrut(18));
 
+		selectAllWeixinGroupButton_ = new JButton("选中所有群");
+		selectAllWeixinGroupButton_.setAlignmentX(LEFT_ALIGNMENT);
+		selectAllWeixinGroupButton_.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<Map<String, JCheckBox>> userList = wgsp.getWeixinUserList();
+				for (int i = 0; i < userList.size(); i++) {
+					Map<String, JCheckBox> map = userList.get(i);
+					for (Map.Entry<String, JCheckBox> entry : map.entrySet()) {
+						String userId = entry.getKey();
+						if (userId != null && userId.startsWith("@@")) {
+							JCheckBox checkBox = entry.getValue();
+							if(checkBox != null) checkBox.setSelected(true);
+						}
+					}
+				}
+			}
+		});
+		add(selectAllWeixinGroupButton_);
+		add(Box.createHorizontalStrut(5));
+		unSelectAllWeixinGroupButton_ = new JButton("取消选中");
+		unSelectAllWeixinGroupButton_.setAlignmentX(LEFT_ALIGNMENT);
+		unSelectAllWeixinGroupButton_.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<Map<String, JCheckBox>> userList = wgsp.getWeixinUserList();
+				for (int i = 0; i < userList.size(); i++) {
+					Map<String, JCheckBox> map = userList.get(i);
+					for (Map.Entry<String, JCheckBox> entry : map.entrySet()) {
+						String userId = entry.getKey();
+						if (userId != null && userId.startsWith("@@")) {
+							JCheckBox checkBox = entry.getValue();
+							if(checkBox != null) checkBox.setSelected(false);
+						}
+					}
+				}
+			}
+		});
+		add(unSelectAllWeixinGroupButton_);
+		add(Box.createHorizontalStrut(5));
+		
 		selectAllButton_ = new JButton("发送图文链接");
 		selectAllButton_.setAlignmentX(LEFT_ALIGNMENT);
 		selectAllButton_.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				weixinContactListFile = new File("weixinContactList.txt");
+				if (weixinContactListFile.exists()) {
+					weixinContactListFile.delete();
+				}
 				List<Map<String, JCheckBox>> userList = wgsp.getWeixinUserList();
 				boolean hasSelected = false;
 				try {
-					fileWriter = new FileWriter("weixinContactList.txt", true);
+					weixinContactListFile = new File("weixinContactList.txt");
+					BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(weixinContactListFile));
 					for (int i = 0; i < userList.size(); i++) {
 						Map<String, JCheckBox> map = userList.get(i);
 						for (Map.Entry<String, JCheckBox> entry : map.entrySet()) {
 							if (entry.getValue().isSelected()) {
 								hasSelected = true;
 								try {
-									fileWriter.write(entry.getValue().getLabel() + "\r\n");
+									output.write((entry.getValue().getLabel() + "\r\n").getBytes("UTF-16LE"));
 								} catch (IOException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
@@ -85,8 +131,8 @@ public class WeixinGroupControlPanel extends JPanel {
 							}
 						}
 					}
-					fileWriter.flush();
-					fileWriter.close();
+					output.flush();
+					output.close();
 				} catch (IOException e3) {
 					// TODO Auto-generated catch block
 					e3.printStackTrace();
@@ -96,37 +142,29 @@ public class WeixinGroupControlPanel extends JPanel {
 					textFiled_.setText("请选择好友或微信群！");
 				} else {
 					textFiled_.setBackground(Color.cyan);
-					textFiled_.setText("当前窗口5秒后自动关闭，请根据文档说明的步骤，完成最终图文链接的群发！");
-					try {
-						BufferedReader bf = new BufferedReader(new FileReader("weixinexepathconfig.txt"));
-						String line = bf.readLine();
-						if (line == null || line.isEmpty()) {
-							textFiled_.setBackground(Color.RED);
-							textFiled_.setText("没有在配置文件中找到WeChat.exe的路径，请手动启动，当前程序5秒后自动关闭！");
-						}
-						Timer timer = new Timer();
-						timer.schedule(new TimerTask() {
-							public void run() {
-								Runtime rt = Runtime.getRuntime();
-								try {
-									if (line != null) {
-										rt.exec(line);
-									}
-									rt.exec("weixin.exe");
-								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-								browser_.close();
+					textFiled_.setText("处理群发图文消息，请手动启动微信PC端！");
+					/*BufferedReader bf = new BufferedReader(new FileReader("weixinexepathconfig.txt"));
+					String line = bf.readLine();
+					if (line == null || line.isEmpty()) {
+						textFiled_.setBackground(Color.RED);
+						textFiled_.setText("没有在配置文件中找到WeChat.exe的路径，请手动启动，当前程序5秒后自动关闭！");
+					}*/
+					Timer timer = new Timer();
+					timer.schedule(new TimerTask() {
+						public void run() {
+							Runtime rt = Runtime.getRuntime();
+							try {
+								/*if (line != null) {
+									//rt.exec(line);
+								}*/
+								rt.exec("weixin.exe");
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
-						}, 5000);
-					} catch (FileNotFoundException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					} catch (IOException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
+							/*browser_.close();*/
+						}
+					}, 1000);
 				}
 			}
 		});
@@ -244,8 +282,6 @@ public class WeixinGroupControlPanel extends JPanel {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				if(!MessageRouterHandler.jsHasFinished) {
-					System.out.println("checkJsHasFinished : " + MessageRouterHandler.jsHasFinished);
-					System.out.println("weixinqunList size : " + weixinqunList.size());
 					checkJsHasFinished();
 				} else {
 					if(weixinqunList.size() != 0) {
